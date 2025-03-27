@@ -11,6 +11,8 @@ export type BlockType = {
   x: number;
   y: number;
   parameters: Parameter[];
+  type: "normal" | "constraint";
+  equation?: string; // лише для constraint
 };
 
 export type BlockProps = {
@@ -18,8 +20,9 @@ export type BlockProps = {
   name: string;
   x: number;
   y: number;
-  onDrag?: (id: string, x: number, y: number) => void;
   parameters: Parameter[];
+  equation?: string;
+  onDrag?: (id: string, x: number, y: number) => void;
   onChangeParam?: (
     blockId: string,
     paramId: string,
@@ -28,4 +31,6 @@ export type BlockProps = {
   ) => void;
   onAddParam?: (blockId: string) => void;
   onDeleteParam?: (blockId: string, paramId: string) => void;
+  onChangeEquation?: (blockId: string, equation: string) => void;
+  onDeleteBlock?: (blockId: string) => void;
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Block from "../components/Block";
 import { BlockType } from "../types";
+import ConstraintBlock from "../components/ConstraintBlock";
 
 const Canvas = () => {
   const [blocks, setBlocks] = useState<BlockType[]>([
@@ -9,6 +10,7 @@ const Canvas = () => {
       name: "Battery",
       x: 100,
       y: 100,
+      type: "normal",
       parameters: [
         { id: "p1", name: "Voltage", value: "12", unit: "V" },
         { id: "p2", name: "Capacity", value: "5000", unit: "mAh" },
@@ -29,6 +31,7 @@ const Canvas = () => {
       name: `Block ${blocks.length + 1}`,
       x: Math.random() * 400 + 100,
       y: Math.random() * 300 + 100,
+      type: "normal", // ✅ додаємо тип
       parameters: [
         {
           id: crypto.randomUUID(),
@@ -96,6 +99,23 @@ const Canvas = () => {
     );
   };
 
+  const handleAddConstraintBlock = () => {
+    const newBlock: BlockType = {
+      id: crypto.randomUUID(),
+      name: `Constraint ${blocks.length + 1}`,
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100,
+      parameters: [],
+      equation: "",
+      type: "constraint",
+    };
+    setBlocks((prev) => [...prev, newBlock]);
+  };
+
+  const handleDeleteBlock = (blockId: string) => {
+    setBlocks((prev) => prev.filter((block) => block.id !== blockId));
+  };
+
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
@@ -104,16 +124,37 @@ const Canvas = () => {
       >
         + Add Block
       </button>
-      {blocks.map((block) => (
-        <Block
-          key={block.id}
-          {...block}
-          onDrag={updateBlockPosition}
-          onChangeParam={handleChangeParam}
-          onAddParam={handleAddParam}
-          onDeleteParam={handleDeleteParam}
-        />
-      ))}
+      <button
+        onClick={handleAddConstraintBlock}
+        className="absolute top-4 left-44 bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700 z-10"
+      >
+        + Constraint Block
+      </button>
+
+      {blocks.map((block) =>
+        block.type === "constraint" ? (
+          <ConstraintBlock
+            key={block.id}
+            {...block}
+            onDrag={updateBlockPosition}
+            onChangeParam={handleChangeParam}
+            onAddParam={handleAddParam}
+            onDeleteParam={handleDeleteParam}
+            //  onChangeEquation={handleChangeEquation}
+            onDeleteBlock={handleDeleteBlock}
+          />
+        ) : (
+          <Block
+            key={block.id}
+            {...block}
+            onDrag={updateBlockPosition}
+            onChangeParam={handleChangeParam}
+            onAddParam={handleAddParam}
+            onDeleteParam={handleDeleteParam}
+            onDeleteBlock={handleDeleteBlock}
+          />
+        )
+      )}
     </div>
   );
 };

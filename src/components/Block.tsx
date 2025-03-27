@@ -11,6 +11,8 @@ const Block: FC<BlockProps> = ({
   onChangeParam,
   onAddParam,
   onDeleteParam,
+  onChangeEquation,
+  onDeleteBlock,
 }) => {
   const blockRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -61,6 +63,15 @@ const Block: FC<BlockProps> = ({
         className="absolute p-3 bg-white rounded border shadow cursor-move select-none z-10"
         style={{ left: `${x}px`, top: `${y}px` }}
       >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeleteBlock?.(id);
+          }}
+          className="absolute top-1 right-1 text-sm text-gray-500 hover:text-red-600"
+        >
+          ✖
+        </button>
         <div className="font-bold text-sm">{name}</div>
         {parameters.map((param) => (
           <div key={param.id} className="flex gap-1 mt-1 items-center">
