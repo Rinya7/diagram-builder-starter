@@ -9,6 +9,8 @@ const Block: FC<BlockProps> = ({
   onDrag,
   parameters,
   onChangeParam,
+  onAddParam,
+  onDeleteParam,
 }) => {
   const blockRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -92,8 +94,22 @@ const Block: FC<BlockProps> = ({
               placeholder="Unit"
               className="border px-1 w-10 text-xs rounded"
             />
+            <button
+              onClick={() => onDeleteParam?.(id, param.id)}
+              className="text-red-500 text-xs ml-1 hover:text-red-700"
+            >
+              🗑️
+            </button>
           </div>
         ))}
+        {parameters.length < 5 && (
+          <button
+            onClick={() => onAddParam?.(id)}
+            className="text-xs text-blue-600 mt-2 hover:underline"
+          >
+            ➕ Add Parameter
+          </button>
+        )}
       </div>
     </>
   );

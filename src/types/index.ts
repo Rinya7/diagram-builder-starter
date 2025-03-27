@@ -26,4 +26,6 @@ export type BlockProps = {
     field: "name" | "value" | "unit",
     value: string
   ) => void;
+  onAddParam?: (blockId: string) => void;
+  onDeleteParam?: (blockId: string, paramId: string) => void;
 };

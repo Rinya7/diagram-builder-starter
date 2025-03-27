@@ -62,6 +62,40 @@ const Canvas = () => {
     );
   };
 
+  const handleAddParam = (blockId: string) => {
+    setBlocks((prev) =>
+      prev.map((block) =>
+        block.id === blockId && block.parameters.length < 5
+          ? {
+              ...block,
+              parameters: [
+                ...block.parameters,
+                {
+                  id: crypto.randomUUID(),
+                  name: "",
+                  value: "",
+                  unit: "",
+                },
+              ],
+            }
+          : block
+      )
+    );
+  };
+
+  const handleDeleteParam = (blockId: string, paramId: string) => {
+    setBlocks((prev) =>
+      prev.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              parameters: block.parameters.filter((p) => p.id !== paramId),
+            }
+          : block
+      )
+    );
+  };
+
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
@@ -76,6 +110,8 @@ const Canvas = () => {
           {...block}
           onDrag={updateBlockPosition}
           onChangeParam={handleChangeParam}
+          onAddParam={handleAddParam}
+          onDeleteParam={handleDeleteParam}
         />
       ))}
     </div>
