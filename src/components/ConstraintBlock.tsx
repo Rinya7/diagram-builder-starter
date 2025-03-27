@@ -1,5 +1,5 @@
 import { FC, useRef, useState, useEffect, useCallback } from "react";
-import { BlockProps } from "../types";
+import { BlockProps, UNIT_OPTIONS } from "../types";
 
 const ConstraintBlock: FC<BlockProps> = ({
   id,
@@ -9,10 +9,11 @@ const ConstraintBlock: FC<BlockProps> = ({
   parameters,
   equation = "",
   onDrag,
+  onChangeName,
   onChangeParam,
+  onChangeEquation,
   onAddParam,
   onDeleteParam,
-  onChangeEquation,
   onDeleteBlock,
   onPortClick,
 }) => {
@@ -23,8 +24,13 @@ const ConstraintBlock: FC<BlockProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
+
     setIsDragging(true);
-    setOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+
     e.preventDefault();
   };
 
@@ -53,11 +59,11 @@ const ConstraintBlock: FC<BlockProps> = ({
     <div
       ref={ref}
       onMouseDown={handleMouseDown}
-      className="absolute p-3 bg-blue-100 border-2 border-blue-500 rounded shadow z-10"
-      style={{ left: x, top: y }}
+      className="group absolute p-3 bg-blue-100 border-blue-400 border-2 rounded shadow select-none z-10"
+      style={{ left: `${x}px`, top: `${y}px` }}
     >
       <button
-        className="w-2 h-2 bg-blue-600 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+        className="w-2 h-2 bg-purple-600 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
         onClick={(e) => {
           e.stopPropagation();
           onPortClick?.(id);
@@ -73,15 +79,24 @@ const ConstraintBlock: FC<BlockProps> = ({
       >
         ✖
       </button>
-      <div className="font-bold text-sm text-blue-800">{name} (Constraint)</div>
+
+      <div className="text-xs text-gray-400 mb-1">Constraint</div>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => onChangeName?.(id, e.target.value)}
+        onMouseDown={(e) => e.stopPropagation()}
+        className="border text-xs px-1 rounded w-full mb-2"
+        placeholder="Constraint name"
+      />
 
       <input
         type="text"
         value={equation}
-        onChange={(e) => onChangeEquation?.(id, e.target.value)}
         placeholder="Equation (e.g. F = m * a)"
-        className="w-full mt-2 border px-1 py-0.5 text-xs rounded"
+        onChange={(e) => onChangeEquation?.(id, e.target.value)}
         onMouseDown={(e) => e.stopPropagation()}
+        className="w-full text-xs border px-1 py-0.5 mb-2 rounded"
       />
 
       {parameters.map((param) => (
@@ -92,20 +107,25 @@ const ConstraintBlock: FC<BlockProps> = ({
             onChange={(e) =>
               onChangeParam?.(id, param.id, "name", e.target.value)
             }
-            className="border px-1 w-20 text-xs rounded"
-            placeholder="Name"
             onMouseDown={(e) => e.stopPropagation()}
+            placeholder="Name"
+            className="border px-1 w-20 text-xs rounded"
           />
-          <input
-            type="text"
+          <select
             value={param.unit}
             onChange={(e) =>
               onChangeParam?.(id, param.id, "unit", e.target.value)
             }
-            className="border px-1 w-14 text-xs rounded"
-            placeholder="Unit"
             onMouseDown={(e) => e.stopPropagation()}
-          />
+            className="border px-1 w-16 text-xs rounded"
+          >
+            <option value="">–</option>
+            {UNIT_OPTIONS.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => onDeleteParam?.(id, param.id)}
             className="text-red-500 text-xs ml-1 hover:text-red-700"
@@ -118,7 +138,7 @@ const ConstraintBlock: FC<BlockProps> = ({
       {parameters.length < 5 && (
         <button
           onClick={() => onAddParam?.(id)}
-          className="text-xs text-blue-700 mt-2 hover:underline"
+          className="text-xs text-blue-600 mt-2 hover:underline opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         >
           ➕ Add Parameter
         </button>

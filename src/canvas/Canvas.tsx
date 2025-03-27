@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Block from "../components/Block";
-import { BlockType } from "../types";
+import { BlockType, Connection } from "../types";
 import ConstraintBlock from "../components/ConstraintBlock";
 
 const Canvas = () => {
@@ -10,17 +10,17 @@ const Canvas = () => {
   );
 
   const [blocks, setBlocks] = useState<BlockType[]>([
-    {
-      id: "b1",
-      name: "Battery",
-      x: 100,
-      y: 100,
-      type: "normal",
-      parameters: [
-        { id: "p1", name: "Voltage", value: "12", unit: "V" },
-        { id: "p2", name: "Capacity", value: "5000", unit: "mAh" },
-      ],
-    },
+    //{
+    //  id: "b1",
+    //  name: "Battery",
+    //  x: 100,
+    //  y: 100,
+    //  type: "normal",
+    //  parameters: [
+    //    { id: "p1", name: "Voltage", value: "12", unit: "V" },
+    //    { id: "p2", name: "Capacity", value: "5000", unit: "mAh" },
+    //  ],
+    //},
   ]);
 
   const updateBlockPosition = (id: string, x: number, y: number) => {
@@ -36,15 +36,8 @@ const Canvas = () => {
       name: `Block ${blocks.length + 1}`,
       x: Math.random() * 400 + 100,
       y: Math.random() * 300 + 100,
-      type: "normal", // ✅ додаємо тип
-      parameters: [
-        {
-          id: crypto.randomUUID(),
-          name: "param1",
-          value: "",
-          unit: "",
-        },
-      ],
+      parameters: [],
+      type: "normal",
     };
 
     setBlocks((prev) => [...prev, newBlock]);
@@ -136,6 +129,12 @@ const Canvas = () => {
     }
   };
 
+  const handleChangeName = (blockId: string, name: string) => {
+    setBlocks((prev) =>
+      prev.map((block) => (block.id === blockId ? { ...block, name } : block))
+    );
+  };
+
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
@@ -160,9 +159,9 @@ const Canvas = () => {
             onChangeParam={handleChangeParam}
             onAddParam={handleAddParam}
             onDeleteParam={handleDeleteParam}
-            //  onChangeEquation={handleChangeEquation}
             onDeleteBlock={handleDeleteBlock}
             onPortClick={handlePortClick}
+            onChangeName={handleChangeName}
           />
         ) : (
           <Block
@@ -174,6 +173,7 @@ const Canvas = () => {
             onDeleteParam={handleDeleteParam}
             onDeleteBlock={handleDeleteBlock}
             onPortClick={handlePortClick}
+            onChangeName={handleChangeName}
           />
         )
       )}

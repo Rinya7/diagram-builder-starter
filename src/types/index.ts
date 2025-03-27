@@ -34,6 +34,7 @@ export type BlockProps = {
   onChangeEquation?: (blockId: string, equation: string) => void;
   onDeleteBlock?: (blockId: string) => void;
   onPortClick?: (blockId: string) => void;
+  onChangeName?: (blockId: string, newName: string) => void;
 };
 
 export const UNIT_OPTIONS = ["V", "A", "W", "Ohm", "kg", "N", "m", "m/s²"];
