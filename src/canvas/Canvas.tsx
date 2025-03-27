@@ -1,17 +1,19 @@
 import { useState } from "react";
 import Block from "../components/Block";
-
-type BlockType = {
-  id: string;
-  name: string;
-  x: number;
-  y: number;
-};
+import { BlockType } from "../types";
 
 const Canvas = () => {
   const [blocks, setBlocks] = useState<BlockType[]>([
-    { id: "b1", name: "Battery", x: 100, y: 100 },
-    { id: "b2", name: "Power", x: 300, y: 150 },
+    {
+      id: "b1",
+      name: "Battery",
+      x: 100,
+      y: 100,
+      parameters: [
+        { id: "p1", name: "Voltage", value: "12", unit: "V" },
+        { id: "p2", name: "Capacity", value: "5000", unit: "mAh" },
+      ],
+    },
   ]);
 
   const updateBlockPosition = (id: string, x: number, y: number) => {
@@ -25,15 +27,23 @@ const Canvas = () => {
     const newBlock: BlockType = {
       id: crypto.randomUUID(),
       name: `Block ${blocks.length + 1}`,
-      x: Math.random() * 400 + 100, // випадкова позиція
+      x: Math.random() * 400 + 100,
       y: Math.random() * 300 + 100,
+      parameters: [
+        {
+          id: crypto.randomUUID(),
+          name: "param1",
+          value: "",
+          unit: "",
+        },
+      ],
     };
 
     setBlocks((prev) => [...prev, newBlock]);
   };
 
   return (
-    <div className="relative w-full h-screen   overflow-hidden">
+    <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
         onClick={handleAddBlock}
         className="absolute top-4 left-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 z-10"
