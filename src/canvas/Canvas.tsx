@@ -42,6 +42,26 @@ const Canvas = () => {
     setBlocks((prev) => [...prev, newBlock]);
   };
 
+  const handleChangeParam = (
+    blockId: string,
+    paramId: string,
+    field: "name" | "value" | "unit",
+    value: string
+  ) => {
+    setBlocks((prev) =>
+      prev.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              parameters: block.parameters.map((param) =>
+                param.id === paramId ? { ...param, [field]: value } : param
+              ),
+            }
+          : block
+      )
+    );
+  };
+
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
@@ -51,7 +71,12 @@ const Canvas = () => {
         + Add Block
       </button>
       {blocks.map((block) => (
-        <Block key={block.id} {...block} onDrag={updateBlockPosition} />
+        <Block
+          key={block.id}
+          {...block}
+          onDrag={updateBlockPosition}
+          onChangeParam={handleChangeParam}
+        />
       ))}
     </div>
   );

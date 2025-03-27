@@ -1,7 +1,15 @@
 import { FC, useRef, useState, useEffect, useCallback } from "react";
 import { BlockProps } from "../types";
 
-const Block: FC<BlockProps> = ({ id, name, x, y, onDrag, parameters }) => {
+const Block: FC<BlockProps> = ({
+  id,
+  name,
+  x,
+  y,
+  onDrag,
+  parameters,
+  onChangeParam,
+}) => {
   const blockRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -53,9 +61,37 @@ const Block: FC<BlockProps> = ({ id, name, x, y, onDrag, parameters }) => {
       >
         <div className="font-bold text-sm">{name}</div>
         {parameters.map((param) => (
-          <div key={param.id} className="text-xs mt-1">
-            <span className="font-semibold">{param.name}</span>: {param.value}{" "}
-            {param.unit}
+          <div key={param.id} className="flex gap-1 mt-1 items-center">
+            <input
+              type="text"
+              value={param.name}
+              onChange={(e) =>
+                onChangeParam?.(id, param.id, "name", e.target.value)
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="Name"
+              className="border px-1 w-20 text-xs rounded"
+            />
+            <input
+              type="text"
+              value={param.value}
+              onChange={(e) =>
+                onChangeParam?.(id, param.id, "value", e.target.value)
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="Value"
+              className="border px-1 w-14 text-xs rounded"
+            />
+            <input
+              type="text"
+              value={param.unit}
+              onChange={(e) =>
+                onChangeParam?.(id, param.id, "unit", e.target.value)
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="Unit"
+              className="border px-1 w-10 text-xs rounded"
+            />
           </div>
         ))}
       </div>
