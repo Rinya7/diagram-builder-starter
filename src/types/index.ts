@@ -33,4 +33,12 @@ export type BlockProps = {
   onDeleteParam?: (blockId: string, paramId: string) => void;
   onChangeEquation?: (blockId: string, equation: string) => void;
   onDeleteBlock?: (blockId: string) => void;
+  onPortClick?: (blockId: string) => void;
+};
+
+export const UNIT_OPTIONS = ["V", "A", "W", "Ohm", "kg", "N", "m", "m/s²"];
+
+export type Connection = {
+  from: string; // blockId
+  to: string; // blockId
 };

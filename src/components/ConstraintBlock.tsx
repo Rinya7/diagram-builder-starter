@@ -14,6 +14,7 @@ const ConstraintBlock: FC<BlockProps> = ({
   onDeleteParam,
   onChangeEquation,
   onDeleteBlock,
+  onPortClick,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -56,11 +57,19 @@ const ConstraintBlock: FC<BlockProps> = ({
       style={{ left: x, top: y }}
     >
       <button
+        className="w-2 h-2 bg-blue-600 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPortClick?.(id);
+        }}
+      />
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onDeleteBlock?.(id);
         }}
         className="absolute top-1 right-1 text-sm text-gray-500 hover:text-red-600"
+        title="Delete block"
       >
         ✖
       </button>

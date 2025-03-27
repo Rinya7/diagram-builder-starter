@@ -1,5 +1,5 @@
 import { FC, useRef, useState, useEffect, useCallback } from "react";
-import { BlockProps } from "../types";
+import { BlockProps, UNIT_OPTIONS } from "../types";
 
 const Block: FC<BlockProps> = ({
   id,
@@ -11,8 +11,9 @@ const Block: FC<BlockProps> = ({
   onChangeParam,
   onAddParam,
   onDeleteParam,
-  onChangeEquation,
+  //  onChangeEquation,
   onDeleteBlock,
+  onPortClick,
 }) => {
   const blockRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -64,11 +65,19 @@ const Block: FC<BlockProps> = ({
         style={{ left: `${x}px`, top: `${y}px` }}
       >
         <button
+          className="w-2 h-2 bg-blue-600 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPortClick?.(id);
+          }}
+        />
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onDeleteBlock?.(id);
           }}
           className="absolute top-1 right-1 text-sm text-gray-500 hover:text-red-600"
+          title="Delete block"
         >
           ✖
         </button>
@@ -95,16 +104,22 @@ const Block: FC<BlockProps> = ({
               placeholder="Value"
               className="border px-1 w-14 text-xs rounded"
             />
-            <input
-              type="text"
+            <select
               value={param.unit}
               onChange={(e) =>
                 onChangeParam?.(id, param.id, "unit", e.target.value)
               }
               onMouseDown={(e) => e.stopPropagation()}
-              placeholder="Unit"
-              className="border px-1 w-10 text-xs rounded"
-            />
+              className="border px-1 w-16 text-xs rounded"
+            >
+              <option value="">–</option>
+              {UNIT_OPTIONS.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+
             <button
               onClick={() => onDeleteParam?.(id, param.id)}
               className="text-red-500 text-xs ml-1 hover:text-red-700"
