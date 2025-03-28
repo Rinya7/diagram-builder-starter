@@ -7,6 +7,7 @@ const Block: FC<BlockProps> = ({
   x,
   y,
   type,
+  transformed,
   parameters,
   equation,
   onDrag,
@@ -92,6 +93,7 @@ const Block: FC<BlockProps> = ({
         placeholder="Block name"
         className="border px-1 text-xs rounded w-full mb-2"
         onMouseDown={(e) => e.stopPropagation()}
+        disabled={transformed}
       />
 
       {/* Рівняння для constraint */}
@@ -103,66 +105,93 @@ const Block: FC<BlockProps> = ({
           placeholder="Equation (e.g. e = P * t)"
           className="border px-1 text-xs rounded w-full mb-2"
           onMouseDown={(e) => e.stopPropagation()}
+          disabled={transformed}
         />
       )}
 
       {/* Параметри */}
-      {parameters.map((param) => (
-        <div key={param.id} className="flex gap-1 mt-1 items-center">
-          <input
-            type="text"
-            value={param.name}
-            onChange={(e) =>
-              onChangeParam?.(id, param.id, "name", e.target.value)
-            }
-            onMouseDown={(e) => e.stopPropagation()}
-            placeholder="Name"
-            className="border px-1 w-20 text-xs rounded"
-          />
-
-          {/* value — тільки для normal блоків */}
-          {type === "normal" && (
+      {!(type === "constraint" && transformed) &&
+        parameters.map((param) => (
+          <div key={param.id} className="flex gap-1 mt-1 items-center">
             <input
               type="text"
-              value={param.value}
+              value={param.name}
               onChange={(e) =>
-                onChangeParam?.(id, param.id, "value", e.target.value)
+                onChangeParam?.(id, param.id, "name", e.target.value)
               }
               onMouseDown={(e) => e.stopPropagation()}
-              placeholder="Value"
-              className="border px-1 w-14 text-xs rounded"
+              placeholder="Name"
+              className="border px-1 w-20 text-xs rounded"
+              disabled={transformed}
             />
-          )}
 
-          {/* Unit */}
-          <select
-            value={param.unit}
-            onChange={(e) =>
-              onChangeParam?.(id, param.id, "unit", e.target.value)
-            }
-            onMouseDown={(e) => e.stopPropagation()}
-            className="border px-1 w-20 text-xs rounded"
-          >
-            <option value="">–</option>
-            {UNIT_OPTIONS.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
+            {/* value — тільки для normal блоків */}
+            {type === "normal" && (
+              <input
+                type="text"
+                value={param.value}
+                onChange={(e) =>
+                  onChangeParam?.(id, param.id, "value", e.target.value)
+                }
+                onMouseDown={(e) => e.stopPropagation()}
+                placeholder="Value"
+                className="border px-1 w-14 text-xs rounded"
+                disabled={transformed}
+              />
+            )}
+
+            {/* Unit */}
+            <select
+              value={param.unit}
+              onChange={(e) =>
+                onChangeParam?.(id, param.id, "unit", e.target.value)
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              className="border px-1 w-20 text-xs rounded"
+              disabled={transformed}
+            >
+              <option value="">–</option>
+              {UNIT_OPTIONS.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+
+            {/* Видалити параметр */}
+            {!transformed && (
+              <button
+                onClick={() => onDeleteParam?.(id, param.id)}
+                className="text-red-500 text-xs ml-1 hover:text-red-700"
+              >
+                🗑️
+              </button>
+            )}
+          </div>
+        ))}
+      {type === "constraint" && transformed && parameters.length > 0 && (
+        <div className="mt-2">
+          <div className="text-xs text-gray-500 mb-1">Ports:</div>
+          <div className="flex flex-wrap gap-1">
+            {parameters.map((param) => (
+              <button
+                key={param.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPortClick?.(id);
+                }}
+                className="border px-2 py-0.5 text-xs rounded bg-purple-100 hover:bg-purple-200"
+                title={`Connect ${param.name}`}
+              >
+                {param.name}
+              </button>
             ))}
-          </select>
-
-          {/* Видалити параметр */}
-          <button
-            onClick={() => onDeleteParam?.(id, param.id)}
-            className="text-red-500 text-xs ml-1 hover:text-red-700"
-          >
-            🗑️
-          </button>
+          </div>
         </div>
-      ))}
+      )}
 
       {/* Додати параметр — лише до 5 */}
-      {parameters.length < 5 && (
+      {parameters.length < 5 && !transformed && (
         <button
           onClick={() => onAddParam?.(id)}
           className="text-xs text-blue-600 mt-2 hover:underline opacity-0 group-hover:opacity-100 transition-opacity duration-200"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Block from "../components/Block";
 import { BlockType, Connection } from "../types";
 import ConstraintBlock from "../components/ConstraintBlock";
@@ -9,19 +10,7 @@ const Canvas = () => {
     null
   );
 
-  const [blocks, setBlocks] = useState<BlockType[]>([
-    //{
-    //  id: "b1",
-    //  name: "Battery",
-    //  x: 100,
-    //  y: 100,
-    //  type: "normal",
-    //  parameters: [
-    //    { id: "p1", name: "Voltage", value: "12", unit: "V" },
-    //    { id: "p2", name: "Capacity", value: "5000", unit: "mAh" },
-    //  ],
-    //},
-  ]);
+  const [blocks, setBlocks] = useState<BlockType[]>([]);
 
   const updateBlockPosition = (id: string, x: number, y: number) => {
     console.log("MOVE", id, x, y); // 🐞 DEBUG
@@ -103,7 +92,7 @@ const Canvas = () => {
       name: `Constraint ${blocks.length + 1}`,
       x: Math.random() * 400 + 100,
       y: Math.random() * 300 + 100,
-      parameters: [],
+      parameters: [], // name + unit будуть додані вручну
       equation: "",
       type: "constraint",
     };
@@ -144,6 +133,51 @@ const Canvas = () => {
     );
   };
 
+  const transformBlocks = () => {
+    const newBlocks: BlockType[] = [];
+
+    blocks.forEach((block) => {
+      if (block.type === "normal") {
+        block.parameters.forEach((param, index) => {
+          newBlocks.push({
+            id: uuidv4(),
+            name: param.name,
+            type: "normal",
+            x: block.x + 160 + index * 120,
+            y: block.y,
+            transformed: true,
+            parameters: [
+              {
+                id: uuidv4(),
+                name: param.name,
+                value: param.value || "",
+                unit: param.unit,
+              },
+            ],
+          });
+        });
+      }
+
+      if (block.type === "constraint") {
+        newBlocks.push({
+          ...block,
+          id: uuidv4(),
+          x: block.x + 200,
+          y: block.y + 100,
+          transformed: true,
+          parameters: block.parameters.map((param) => ({
+            id: param.id,
+            name: param.name,
+            unit: param.unit,
+          })),
+        });
+      }
+    });
+
+    // Замість додавання — повністю оновлюємо масив блоків
+    setBlocks(newBlocks);
+  };
+
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
       <button
@@ -158,35 +192,27 @@ const Canvas = () => {
       >
         + Constraint Block
       </button>
+      <button
+        onClick={transformBlocks}
+        className="absolute px-4 py-2 top-4  right-10 bg-green-600 text-white rounded hover:bg-green-700 z-10"
+      >
+        🔄 Transform Blocks
+      </button>
 
-      {blocks.map((block) =>
-        block.type === "constraint" ? (
-          <ConstraintBlock
-            key={block.id}
-            {...block}
-            onDrag={updateBlockPosition}
-            onChangeParam={handleChangeParam}
-            onAddParam={handleAddParam}
-            onDeleteParam={handleDeleteParam}
-            onDeleteBlock={handleDeleteBlock}
-            onPortClick={handlePortClick}
-            onChangeName={handleChangeName}
-            onChangeEquation={handleChangeEquation}
-          />
-        ) : (
-          <Block
-            key={block.id}
-            {...block}
-            onDrag={updateBlockPosition}
-            onChangeParam={handleChangeParam}
-            onAddParam={handleAddParam}
-            onDeleteParam={handleDeleteParam}
-            onDeleteBlock={handleDeleteBlock}
-            onPortClick={handlePortClick}
-            onChangeName={handleChangeName}
-          />
-        )
-      )}
+      {blocks.map((block) => (
+        <Block
+          key={block.id}
+          {...block}
+          onDrag={updateBlockPosition}
+          onChangeParam={handleChangeParam}
+          onAddParam={handleAddParam}
+          onDeleteParam={handleDeleteParam}
+          onDeleteBlock={handleDeleteBlock}
+          onPortClick={handlePortClick}
+          onChangeName={handleChangeName}
+          onChangeEquation={handleChangeEquation}
+        />
+      ))}
       <svg className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
         {connections.map((conn, i) => {
           const from = blocks.find((b) => b.id === conn.from);
