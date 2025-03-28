@@ -134,6 +134,15 @@ const Canvas = () => {
       prev.map((block) => (block.id === blockId ? { ...block, name } : block))
     );
   };
+  const handleChangeEquation = (blockId: string, equation: string) => {
+    setBlocks((prev) =>
+      prev.map((block) =>
+        block.id === blockId && block.type === "constraint"
+          ? { ...block, equation }
+          : block
+      )
+    );
+  };
 
   return (
     <div className="relative w-full h-screen   overflow-hidden text-black">
@@ -162,6 +171,7 @@ const Canvas = () => {
             onDeleteBlock={handleDeleteBlock}
             onPortClick={handlePortClick}
             onChangeName={handleChangeName}
+            onChangeEquation={handleChangeEquation}
           />
         ) : (
           <Block

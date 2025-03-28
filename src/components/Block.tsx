@@ -6,14 +6,17 @@ const Block: FC<BlockProps> = ({
   name,
   x,
   y,
-  onDrag,
+  type,
   parameters,
+  equation,
+  onDrag,
   onChangeParam,
   onChangeName,
   onAddParam,
   onDeleteParam,
   onDeleteBlock,
   onPortClick,
+  onChangeEquation,
 }) => {
   const blockRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -55,6 +58,7 @@ const Block: FC<BlockProps> = ({
       className="group absolute p-3 bg-white rounded border shadow cursor-move select-none z-10"
       style={{ left: `${x}px`, top: `${y}px` }}
     >
+      {/* Порт зверху */}
       <button
         className="w-2 h-2 bg-purple-600 rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
         onClick={(e) => {
@@ -62,6 +66,8 @@ const Block: FC<BlockProps> = ({
           onPortClick?.(id);
         }}
       />
+
+      {/* Кнопка видалення */}
       <button
         onClick={(e) => {
           e.stopPropagation();
@@ -73,8 +79,12 @@ const Block: FC<BlockProps> = ({
         ✖
       </button>
 
-      <div className="text-xs text-gray-400 mb-1">Block</div>
+      {/* Тип блоку */}
+      <div className="text-xs text-gray-400 mb-1">
+        {type === "constraint" ? "Constraint Block" : "Block"}
+      </div>
 
+      {/* Назва */}
       <input
         type="text"
         value={name}
@@ -84,6 +94,19 @@ const Block: FC<BlockProps> = ({
         onMouseDown={(e) => e.stopPropagation()}
       />
 
+      {/* Рівняння для constraint */}
+      {type === "constraint" && (
+        <input
+          type="text"
+          value={equation || ""}
+          onChange={(e) => onChangeEquation?.(id, e.target.value)}
+          placeholder="Equation (e.g. e = P * t)"
+          className="border px-1 text-xs rounded w-full mb-2"
+          onMouseDown={(e) => e.stopPropagation()}
+        />
+      )}
+
+      {/* Параметри */}
       {parameters.map((param) => (
         <div key={param.id} className="flex gap-1 mt-1 items-center">
           <input
@@ -96,23 +119,29 @@ const Block: FC<BlockProps> = ({
             placeholder="Name"
             className="border px-1 w-20 text-xs rounded"
           />
-          <input
-            type="text"
-            value={param.value}
-            onChange={(e) =>
-              onChangeParam?.(id, param.id, "value", e.target.value)
-            }
-            onMouseDown={(e) => e.stopPropagation()}
-            placeholder="Value"
-            className="border px-1 w-14 text-xs rounded"
-          />
+
+          {/* value — тільки для normal блоків */}
+          {type === "normal" && (
+            <input
+              type="text"
+              value={param.value}
+              onChange={(e) =>
+                onChangeParam?.(id, param.id, "value", e.target.value)
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder="Value"
+              className="border px-1 w-14 text-xs rounded"
+            />
+          )}
+
+          {/* Unit */}
           <select
             value={param.unit}
             onChange={(e) =>
               onChangeParam?.(id, param.id, "unit", e.target.value)
             }
             onMouseDown={(e) => e.stopPropagation()}
-            className="border px-1 w-16 text-xs rounded"
+            className="border px-1 w-20 text-xs rounded"
           >
             <option value="">–</option>
             {UNIT_OPTIONS.map((u) => (
@@ -121,6 +150,8 @@ const Block: FC<BlockProps> = ({
               </option>
             ))}
           </select>
+
+          {/* Видалити параметр */}
           <button
             onClick={() => onDeleteParam?.(id, param.id)}
             className="text-red-500 text-xs ml-1 hover:text-red-700"
@@ -130,6 +161,7 @@ const Block: FC<BlockProps> = ({
         </div>
       ))}
 
+      {/* Додати параметр — лише до 5 */}
       {parameters.length < 5 && (
         <button
           onClick={() => onAddParam?.(id)}
